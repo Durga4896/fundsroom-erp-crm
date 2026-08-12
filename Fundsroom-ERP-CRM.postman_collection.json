@@ -1,0 +1,358 @@
+{
+  "info": {
+    "name": "Fundsroom ERP CRM API",
+    "description": "API collection for the Fundsroom ERP & CRM technical case study.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": "1"
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    },
+    {
+      "key": "challanId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<admin-email>\",\n  \"password\": \"<admin-password>\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/customers?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Customer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Test Customer\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"test@example.com\",\n  \"businessName\": \"Test Business\",\n  \"customerType\": \"RETAIL\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": "{{baseUrl}}/customers"
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Updated Customer\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Add Follow-up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Follow-up with customer\"\n}"
+            },
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Product\",\n  \"sku\": \"TEST-001\",\n  \"category\": \"General\",\n  \"unitPrice\": 100,\n  \"currentStock\": 50,\n  \"minimumStock\": 10,\n  \"warehouseLocation\": \"Warehouse A\"\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product\",\n  \"unitPrice\": 125\n}"
+            },
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Stock Movement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 10,\n  \"movementType\": \"IN\",\n  \"reason\": \"Stock replenishment\"\n}"
+            },
+            "url": "{{baseUrl}}/products/{{productId}}/stock"
+          }
+        },
+        {
+          "name": "Stock Movement History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products/{{productId}}/stock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Challans",
+      "item": [
+        {
+          "name": "List Challans",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/challans?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Challan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/challans/{{challanId}}"
+          }
+        },
+        {
+          "name": "Create Challan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": 1,\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/challans"
+          }
+        },
+        {
+          "name": "Confirm Challan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/challans/{{challanId}}/confirm"
+          }
+        },
+        {
+          "name": "Cancel Challan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/challans/{{challanId}}/cancel"
+          }
+        }
+      ]
+    }
+  ]
+}
