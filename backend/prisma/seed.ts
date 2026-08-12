@@ -21,32 +21,40 @@ const users = [
   {
     name: "System Administrator",
     email: "admin@fundsroom.com",
-    password: "Admin@12345",
+    passwordEnv: "ADMIN_PASSWORD",
     role: "ADMIN" as const,
   },
   {
     name: "Sales User",
     email: "sales@fundsroom.com",
-    password: "Sales@12345",
+    passwordEnv: "SALES_PASSWORD",
     role: "SALES" as const,
   },
   {
     name: "Warehouse User",
     email: "warehouse@fundsroom.com",
-    password: "Warehouse@12345",
+    passwordEnv: "WAREHOUSE_PASSWORD",
     role: "WAREHOUSE" as const,
   },
   {
     name: "Accounts User",
     email: "accounts@fundsroom.com",
-    password: "Accounts@12345",
+    passwordEnv: "ACCOUNTS_PASSWORD",
     role: "ACCOUNTS" as const,
   },
 ];
 
 async function main() {
   for (const user of users) {
-    const passwordHash = await bcrypt.hash(user.password, 12);
+    const password = process.env[user.passwordEnv];
+
+    if (!password) {
+      throw new Error(
+        `${user.passwordEnv} is not configured`
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
 
     await prisma.user.upsert({
       where: {
