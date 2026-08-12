@@ -1,5 +1,13 @@
 # Fundsroom ERP & CRM
 
+## 🚀 Live Demo
+
+**Live Application:** https://fundsroom-frontend-ufqe.onrender.com
+
+**Backend API:** https://fundsroom-erp-crm-xnyf.onrender.com
+
+**GitHub Repository:** https://github.com/Durga4896/fundsroom-erp-crm
+
 Full-stack ERP and CRM application developed for the Fundsroom technical case study.
 
 ## Tech Stack
