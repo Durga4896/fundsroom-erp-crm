@@ -31,6 +31,7 @@ type Challan = {
   totalQuantity: number;
   status: "DRAFT" | "CONFIRMED" | "CANCELLED";
   createdAt: string;
+  updatedAt?: string;
   customer: Customer;
   items: ChallanItem[];
 };
@@ -51,6 +52,10 @@ export default function Challans() {
 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [selectedChallan, setSelectedChallan] =
+    useState<Challan | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
   const [customerId, setCustomerId] = useState("");
   const [items, setItems] = useState<NewItem[]>([
@@ -217,6 +222,28 @@ export default function Challans() {
     }
   };
 
+  const viewDetails = async (id: number) => {
+    try {
+      setDetailsLoading(true);
+      setError("");
+
+      const response = await api.get(`/challans/${id}`);
+
+      setSelectedChallan(response.data.data || null);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to load challan details"
+      );
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const closeDetails = () => {
+    setSelectedChallan(null);
+  };
+
   const confirmChallan = async (id: number) => {
     if (!window.confirm("Confirm this challan?")) {
       return;
@@ -232,6 +259,10 @@ export default function Challans() {
 
       await loadChallans();
       await loadProducts();
+
+      if (selectedChallan?.id === id) {
+        await viewDetails(id);
+      }
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Failed to confirm challan"
@@ -253,6 +284,10 @@ export default function Challans() {
       setSuccess("Challan cancelled successfully");
 
       await loadChallans();
+
+      if (selectedChallan?.id === id) {
+        await viewDetails(id);
+      }
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Failed to cancel challan"
@@ -277,9 +312,7 @@ export default function Challans() {
       <div className="page-header">
         <div>
           <h1>Challans</h1>
-          <p>
-            Create, confirm and manage sales challans.
-          </p>
+          <p>Create, confirm and manage sales challans.</p>
         </div>
 
         <button
@@ -295,36 +328,22 @@ export default function Challans() {
 
       {error && <div className="error">{error}</div>}
 
-      {success && (
-        <div className="success">
-          {success}
-        </div>
-      )}
+      {success && <div className="success">{success}</div>}
 
       {showForm && (
         <div className="customer-form-card">
           <h2>Create Challan</h2>
 
-          <form
-            onSubmit={handleCreate}
-            className="customer-form"
-          >
+          <form onSubmit={handleCreate} className="customer-form">
             <select
               value={customerId}
-              onChange={(e) =>
-                setCustomerId(e.target.value)
-              }
+              onChange={(e) => setCustomerId(e.target.value)}
               required
             >
-              <option value="">
-                Select Customer *
-              </option>
+              <option value="">Select Customer *</option>
 
               {customers.map((customer) => (
-                <option
-                  key={customer.id}
-                  value={customer.id}
-                >
+                <option key={customer.id} value={customer.id}>
                   {customer.customerName}
                   {customer.businessName
                     ? ` - ${customer.businessName}`
@@ -334,32 +353,20 @@ export default function Challans() {
             </select>
 
             {items.map((item, index) => (
-              <div
-                key={index}
-                className="challan-item-row"
-              >
+              <div key={index} className="challan-item-row">
                 <select
                   value={item.productId}
                   onChange={(e) =>
-                    updateItem(
-                      index,
-                      "productId",
-                      e.target.value
-                    )
+                    updateItem(index, "productId", e.target.value)
                   }
                   required
                 >
-                  <option value="">
-                    Select Product *
-                  </option>
+                  <option value="">Select Product *</option>
 
                   {products.map((product) => (
-                    <option
-                      key={product.id}
-                      value={product.id}
-                    >
-                      {product.name} ({product.sku}) -
-                      Stock: {product.currentStock}
+                    <option key={product.id} value={product.id}>
+                      {product.name} ({product.sku}) - Stock:{" "}
+                      {product.currentStock}
                     </option>
                   ))}
                 </select>
@@ -370,11 +377,7 @@ export default function Challans() {
                   placeholder="Quantity *"
                   value={item.quantity}
                   onChange={(e) =>
-                    updateItem(
-                      index,
-                      "quantity",
-                      e.target.value
-                    )
+                    updateItem(index, "quantity", e.target.value)
                   }
                   required
                 />
@@ -382,9 +385,7 @@ export default function Challans() {
                 {items.length > 1 && (
                   <button
                     type="button"
-                    onClick={() =>
-                      removeItem(index)
-                    }
+                    onClick={() => removeItem(index)}
                   >
                     Remove
                   </button>
@@ -392,22 +393,143 @@ export default function Challans() {
               </div>
             ))}
 
-            <button
-              type="button"
-              onClick={addItem}
-            >
+            <button type="button" onClick={addItem}>
               + Add Another Product
             </button>
 
-            <button
-              type="submit"
-              disabled={saving}
-            >
-              {saving
-                ? "Creating..."
-                : "Create Challan"}
+            <button type="submit" disabled={saving}>
+              {saving ? "Creating..." : "Create Challan"}
             </button>
           </form>
+        </div>
+      )}
+
+      {selectedChallan && (
+        <div className="table-card challan-details-card">
+          <div className="panel-header">
+            <div>
+              <h2>{selectedChallan.challanNumber}</h2>
+              <p>Challan details</p>
+            </div>
+
+            <button type="button" onClick={closeDetails}>
+              Close
+            </button>
+          </div>
+
+          <div className="challan-details-grid">
+            <div>
+              <span>Customer</span>
+              <strong>
+                {selectedChallan.customer?.customerName || "-"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Business</span>
+              <strong>
+                {selectedChallan.customer?.businessName || "-"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Status</span>
+              <strong>
+                <span
+                  className={getStatusClass(selectedChallan.status)}
+                >
+                  {selectedChallan.status}
+                </span>
+              </strong>
+            </div>
+
+            <div>
+              <span>Total Quantity</span>
+              <strong>{selectedChallan.totalQuantity}</strong>
+            </div>
+
+            <div>
+              <span>Created</span>
+              <strong>
+                {new Date(
+                  selectedChallan.createdAt
+                ).toLocaleString()}
+              </strong>
+            </div>
+          </div>
+
+          <h3>Items</h3>
+
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Unit Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {selectedChallan.items.map((item) => {
+                  const total =
+                    Number(item.unitPrice) * item.quantity;
+
+                  return (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.productName}</strong>
+                      </td>
+
+                      <td>{item.sku}</td>
+
+                      <td>
+                        ₹{Number(item.unitPrice).toLocaleString()}
+                      </td>
+
+                      <td>{item.quantity}</td>
+
+                      <td>
+                        <strong>
+                          ₹{total.toLocaleString()}
+                        </strong>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedChallan.status === "DRAFT" && (
+            <div className="challan-actions">
+              <button
+                type="button"
+                onClick={() =>
+                  confirmChallan(selectedChallan.id)
+                }
+              >
+                Confirm Challan
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  cancelChallan(selectedChallan.id)
+                }
+              >
+                Cancel Challan
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {detailsLoading && (
+        <div className="table-card">
+          <p>Loading challan details...</p>
         </div>
       )}
 
@@ -434,31 +556,22 @@ export default function Challans() {
               {challans.map((challan) => (
                 <tr key={challan.id}>
                   <td>
-                    <strong>
-                      {challan.challanNumber}
-                    </strong>
+                    <strong>{challan.challanNumber}</strong>
                   </td>
 
                   <td>
-                    {challan.customer?.customerName ||
-                      "-"}
+                    {challan.customer?.customerName || "-"}
                   </td>
 
-                  <td>
-                    {challan.items?.length || 0}
-                  </td>
+                  <td>{challan.items?.length || 0}</td>
 
                   <td>
-                    <strong>
-                      {challan.totalQuantity}
-                    </strong>
+                    <strong>{challan.totalQuantity}</strong>
                   </td>
 
                   <td>
                     <span
-                      className={getStatusClass(
-                        challan.status
-                      )}
+                      className={getStatusClass(challan.status)}
                     >
                       {challan.status}
                     </span>
@@ -471,39 +584,36 @@ export default function Challans() {
                   </td>
 
                   <td>
-                    {challan.status === "DRAFT" && (
-                      <div className="challan-actions">
-                        <button
-                          onClick={() =>
-                            confirmChallan(
-                              challan.id
-                            )
-                          }
-                        >
-                          Confirm
-                        </button>
+                    <div className="challan-actions">
+                      <button
+                        type="button"
+                        onClick={() => viewDetails(challan.id)}
+                      >
+                        View
+                      </button>
 
-                        <button
-                          onClick={() =>
-                            cancelChallan(
-                              challan.id
-                            )
-                          }
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    )}
+                      {challan.status === "DRAFT" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              confirmChallan(challan.id)
+                            }
+                          >
+                            Confirm
+                          </button>
 
-                    {challan.status ===
-                      "CONFIRMED" && (
-                      <span>Completed</span>
-                    )}
-
-                    {challan.status ===
-                      "CANCELLED" && (
-                      <span>Cancelled</span>
-                    )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              cancelChallan(challan.id)
+                            }
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
