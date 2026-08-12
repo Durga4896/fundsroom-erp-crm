@@ -8,20 +8,48 @@ import {
   cancelChallan,
 } from "../controllers/challan.controller.js";
 
-import { authenticate } from "../middleware/auth.middleware.js";
+import {
+  authenticate,
+  authorize,
+} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.post("/", createChallan);
+// Create challan
+router.post(
+  "/",
+  authorize("ADMIN", "SALES"),
+  createChallan
+);
 
-router.get("/", getChallans);
+// View challans
+router.get(
+  "/",
+  authorize("ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"),
+  getChallans
+);
 
-router.get("/:id", getChallanById);
+// View challan details
+router.get(
+  "/:id",
+  authorize("ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"),
+  getChallanById
+);
 
-router.post("/:id/confirm", confirmChallan);
+// Confirm challan
+router.post(
+  "/:id/confirm",
+  authorize("ADMIN", "SALES", "WAREHOUSE"),
+  confirmChallan
+);
 
-router.post("/:id/cancel", cancelChallan);
+// Cancel challan
+router.post(
+  "/:id/cancel",
+  authorize("ADMIN", "SALES"),
+  cancelChallan
+);
 
 export default router;
