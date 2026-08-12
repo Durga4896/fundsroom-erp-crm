@@ -18,6 +18,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -71,7 +72,7 @@ export default function Products() {
     try {
       setError("");
 
-      await api.post("/products", {
+      const payload = {
         name: form.name,
         sku: form.sku,
         category: form.category,
@@ -79,7 +80,13 @@ export default function Products() {
         currentStock: Number(form.currentStock),
         minimumStock: Number(form.minimumStock),
         warehouseLocation: form.warehouseLocation,
-      });
+      };
+
+      if (editingProduct) {
+        await api.put(`/products/${editingProduct.id}`, payload);
+      } else {
+        await api.post("/products", payload);
+      }
 
       setForm({
         name: "",
@@ -91,13 +98,32 @@ export default function Products() {
         warehouseLocation: "",
       });
 
+      setEditingProduct(null);
       setShowForm(false);
+
       await loadProducts();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Failed to create product"
+        err.response?.data?.message ||
+        `Failed to ${editingProduct ? "update" : "create"} product`
       );
     }
+  };
+
+  const startEdit = (product: Product) => {
+    setEditingProduct(product);
+
+    setForm({
+      name: product.name,
+      sku: product.sku,
+      category: product.category,
+      unitPrice: String(product.unitPrice),
+      currentStock: String(product.currentStock),
+      minimumStock: String(product.minimumStock),
+      warehouseLocation: product.warehouseLocation || "",
+    });
+
+    setShowForm(true);
   };
 
   return (
@@ -108,7 +134,23 @@ export default function Products() {
           <p>Manage products, pricing and inventory levels.</p>
         </div>
 
-        <button onClick={() => setShowForm(!showForm)}>
+        <button
+          onClick={() => {
+            setEditingProduct(null);
+
+            setForm({
+              name: "",
+              sku: "",
+              category: "",
+              unitPrice: "",
+              currentStock: "0",
+              minimumStock: "0",
+              warehouseLocation: "",
+            });
+
+            setShowForm(!showForm);
+          }}
+        >
           {showForm ? "Close" : "+ Add Product"}
         </button>
       </div>
@@ -117,7 +159,7 @@ export default function Products() {
 
       {showForm && (
         <div className="customer-form-card">
-          <h2>Add Product</h2>
+          <h2>{editingProduct ? "Edit Product" : "Add Product"}</h2>
 
           <form onSubmit={handleSubmit} className="customer-form">
             <input
@@ -180,7 +222,7 @@ export default function Products() {
             />
 
             <button type="submit">
-              Create Product
+              {editingProduct ? "Update Product" : "Create Product"}
             </button>
           </form>
         </div>
@@ -211,6 +253,7 @@ export default function Products() {
                 <th>Stock</th>
                 <th>Minimum</th>
                 <th>Warehouse</th>
+                <th>Actions</th>
               </tr>
             </thead>
 
@@ -241,6 +284,17 @@ export default function Products() {
 
                   <td>
                     {product.warehouseLocation || "-"}
+                  </td>
+                  <td>
+                    {product.warehouseLocation || "-"}
+                  </td>
+                  <td>
+                    <button
+                      className="small-button edit-button"
+                      onClick={() => startEdit(product)}
+                    >
+                      Edit
+                    </button>
                   </td>
                 </tr>
               ))}
