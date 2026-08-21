@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 const menuItems = [
   { label: "Dashboard", path: "/dashboard", icon: "▦" },
+  { label: "Operations", path: "/operations", icon: "⚙" },
   { label: "Customers", path: "/customers", icon: "♙" },
   { label: "Products", path: "/products", icon: "▤" },
   { label: "Inventory", path: "/inventory", icon: "◈" },

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Inventory from "./pages/Inventory";
 import Challans from "./pages/Challans";
+import OperationsDashboard from "./pages/OperationsDashboard";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -32,6 +33,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/operations"
+        element={
+          <ProtectedRoute>
+            <OperationsDashboard />
           </ProtectedRoute>
         }
       />
