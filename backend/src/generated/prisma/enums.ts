@@ -11,9 +11,8 @@
 
 export const UserRole = {
   ADMIN: 'ADMIN',
-  SALES: 'SALES',
-  WAREHOUSE: 'WAREHOUSE',
-  ACCOUNTS: 'ACCOUNTS'
+  OPERATIONS: 'OPERATIONS',
+  SALES: 'SALES'
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
@@ -52,3 +51,30 @@ export const ChallanStatus = {
 } as const
 
 export type ChallanStatus = (typeof ChallanStatus)[keyof typeof ChallanStatus]
+
+
+export const WorkOrderStatus = {
+  ASSIGNED: 'ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type WorkOrderStatus = (typeof WorkOrderStatus)[keyof typeof WorkOrderStatus]
+
+
+export const TransferStatus = {
+  REQUESTED: 'REQUESTED',
+  DISPATCHED: 'DISPATCHED',
+  RECEIVED: 'RECEIVED'
+} as const
+
+export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus]
+
+
+export const OrderStatus = {
+  RESERVED: 'RESERVED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]

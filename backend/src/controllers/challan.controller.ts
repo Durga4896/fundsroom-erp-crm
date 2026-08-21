@@ -276,47 +276,99 @@ export const confirmChallan = async (
           throw new Error("CHALLAN_NOT_DRAFT");
         }
 
-        // Check stock before making any changes
+        /*
+         * Inventory is the source of truth.
+         *
+         * Available stock =
+         * physicalQuantity - reservedQuantity
+         *
+         * A challan consumes physical inventory directly.
+         */
+
         for (const item of challan.items) {
-          const product = await tx.product.findUnique({
+          const inventoryRecords = await tx.inventory.findMany({
             where: {
-              id: item.productId,
+              productId: item.productId,
+            },
+            orderBy: {
+              id: "asc",
             },
           });
 
-          if (!product) {
-            throw new Error(`PRODUCT_NOT_FOUND:${item.productId}`);
-          }
+          const availableQuantity = inventoryRecords.reduce(
+            (total, inventory) =>
+              total +
+              inventory.physicalQuantity -
+              inventory.reservedQuantity,
+            0
+          );
 
-          if (product.currentStock < item.quantity) {
+          if (availableQuantity < item.quantity) {
+            const product = await tx.product.findUnique({
+              where: {
+                id: item.productId,
+              },
+              select: {
+                name: true,
+              },
+            });
+
             throw new Error(
-              `INSUFFICIENT_STOCK:${product.name}:${product.currentStock}:${item.quantity}`
+              `INSUFFICIENT_STOCK:${product?.name ?? item.productId}:${availableQuantity}:${item.quantity}`
             );
           }
         }
 
-        // Deduct stock + create stock movements
+        /*
+         * Consume inventory from the oldest inventory records first.
+         */
         for (const item of challan.items) {
-          const product = await tx.product.findUnique({
+          const inventoryRecords = await tx.inventory.findMany({
             where: {
-              id: item.productId,
+              productId: item.productId,
+            },
+            orderBy: {
+              id: "asc",
             },
           });
 
-          if (!product) {
-            throw new Error(`PRODUCT_NOT_FOUND:${item.productId}`);
+          let remaining = item.quantity;
+
+          for (const inventory of inventoryRecords) {
+            if (remaining <= 0) {
+              break;
+            }
+
+            const available =
+              inventory.physicalQuantity -
+              inventory.reservedQuantity;
+
+            if (available <= 0) {
+              continue;
+            }
+
+            const consume = Math.min(
+              available,
+              remaining
+            );
+
+            await tx.inventory.update({
+              where: {
+                id: inventory.id,
+              },
+              data: {
+                physicalQuantity: {
+                  decrement: consume,
+                },
+              },
+            });
+
+            remaining -= consume;
           }
 
-          await tx.product.update({
-            where: {
-              id: item.productId,
-            },
-            data: {
-              currentStock: {
-                decrement: item.quantity,
-              },
-            },
-          });
+          if (remaining > 0) {
+            throw new Error("INVENTORY_CONSUMPTION_FAILED");
+          }
 
           await tx.stockMovement.create({
             data: {
@@ -343,7 +395,8 @@ export const confirmChallan = async (
         });
       },
       {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        isolationLevel:
+          Prisma.TransactionIsolationLevel.Serializable,
       }
     );
 
@@ -368,6 +421,14 @@ export const confirmChallan = async (
         res.status(409).json({
           success: false,
           message: "Only draft challans can be confirmed",
+        });
+        return;
+      }
+
+      if (error.message === "INVENTORY_CONSUMPTION_FAILED") {
+        res.status(409).json({
+          success: false,
+          message: "Unable to consume inventory",
         });
         return;
       }

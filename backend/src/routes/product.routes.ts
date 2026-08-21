@@ -7,6 +7,7 @@ import {
   addStockMovement,
   getStockMovements,
 } from "../controllers/product.controller.js";
+
 import {
   authenticate,
   authorize,
@@ -19,38 +20,38 @@ router.use(authenticate);
 // Product management
 router.post(
   "/",
-  authorize("ADMIN", "WAREHOUSE"),
+  authorize("ADMIN", "OPERATIONS"),
   createProduct
 );
 
 router.get(
   "/",
-  authorize("ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"),
+  authorize("ADMIN", "OPERATIONS", "SALES"),
   getProducts
 );
 
 router.get(
   "/:id",
-  authorize("ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"),
+  authorize("ADMIN", "OPERATIONS", "SALES"),
   getProductById
 );
 
 router.put(
   "/:id",
-  authorize("ADMIN", "WAREHOUSE"),
+  authorize("ADMIN", "OPERATIONS"),
   updateProduct
 );
 
 // Stock management
 router.post(
   "/:id/stock",
-  authorize("ADMIN", "WAREHOUSE"),
+  authorize("ADMIN", "OPERATIONS"),
   addStockMovement
 );
 
 router.get(
   "/:id/stock",
-  authorize("ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"),
+  authorize("ADMIN", "OPERATIONS", "SALES"),
   getStockMovements
 );
 

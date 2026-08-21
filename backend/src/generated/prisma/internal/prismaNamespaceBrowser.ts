@@ -57,7 +57,13 @@ export const ModelName = {
   Product: 'Product',
   StockMovement: 'StockMovement',
   Challan: 'Challan',
-  ChallanItem: 'ChallanItem'
+  ChallanItem: 'ChallanItem',
+  Location: 'Location',
+  Inventory: 'Inventory',
+  WorkOrder: 'WorkOrder',
+  Transfer: 'Transfer',
+  CustomerOrder: 'CustomerOrder',
+  CustomerOrderItem: 'CustomerOrderItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -174,6 +180,86 @@ export const ChallanItemScalarFieldEnum = {
 } as const
 
 export type ChallanItemScalarFieldEnum = (typeof ChallanItemScalarFieldEnum)[keyof typeof ChallanItemScalarFieldEnum]
+
+
+export const LocationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LocationScalarFieldEnum = (typeof LocationScalarFieldEnum)[keyof typeof LocationScalarFieldEnum]
+
+
+export const InventoryScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  locationId: 'locationId',
+  batchNumber: 'batchNumber',
+  physicalQuantity: 'physicalQuantity',
+  reservedQuantity: 'reservedQuantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryScalarFieldEnum = (typeof InventoryScalarFieldEnum)[keyof typeof InventoryScalarFieldEnum]
+
+
+export const WorkOrderScalarFieldEnum = {
+  id: 'id',
+  workOrderNumber: 'workOrderNumber',
+  productId: 'productId',
+  locationId: 'locationId',
+  requiredQuantity: 'requiredQuantity',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkOrderScalarFieldEnum = (typeof WorkOrderScalarFieldEnum)[keyof typeof WorkOrderScalarFieldEnum]
+
+
+export const TransferScalarFieldEnum = {
+  id: 'id',
+  transferNumber: 'transferNumber',
+  productId: 'productId',
+  sourceLocationId: 'sourceLocationId',
+  targetLocationId: 'targetLocationId',
+  quantity: 'quantity',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TransferScalarFieldEnum = (typeof TransferScalarFieldEnum)[keyof typeof TransferScalarFieldEnum]
+
+
+export const CustomerOrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  customerId: 'customerId',
+  locationId: 'locationId',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerOrderScalarFieldEnum = (typeof CustomerOrderScalarFieldEnum)[keyof typeof CustomerOrderScalarFieldEnum]
+
+
+export const CustomerOrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  quantity: 'quantity'
+} as const
+
+export type CustomerOrderItemScalarFieldEnum = (typeof CustomerOrderItemScalarFieldEnum)[keyof typeof CustomerOrderItemScalarFieldEnum]
 
 
 export const SortOrder = {

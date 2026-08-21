@@ -1,10 +1,17 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import authRoutes from "./routes/auth.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import challanRoutes from "./routes/challan.routes.js";
+import operationsRoutes from "./routes/operations.routes.js";
+import locationRoutes from "./routes/location.routes.js";
+import inventoryRoutes from "./routes/inventory.routes.js";
+import workOrderRoutes from "./routes/work-order.routes.js";
+import transferRoutes from "./routes/transfer.routes.js";
+import customerOrderRoutes from "./routes/customer-order.routes.js";
 
 
 import {
@@ -19,7 +26,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin:
+      process.env.CLIENT_URL ||
+      "http://localhost:5173",
   })
 );
 
@@ -34,8 +43,6 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-const PORT = Number(process.env.PORT) || 5001;
-
 app.get(
   "/api/auth/me",
   authenticate,
@@ -46,8 +53,6 @@ app.get(
     });
   }
 );
-
-app.use("/api/customers", customerRoutes);
 
 app.get(
   "/api/auth/admin-test",
@@ -61,9 +66,25 @@ app.get(
   }
 );
 
+app.use("/api/customers", customerRoutes);
+
 app.use("/api/products", productRoutes);
+
+
 app.use("/api/challans", challanRoutes);
 
+app.use("/api/operations", operationsRoutes);
+
+app.use("/api/locations", locationRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/operations/work-orders", workOrderRoutes);
+app.use("/api/operations/transfers", transferRoutes);
+app.use("/api/operations/customer-orders", customerOrderRoutes);
+
+const PORT = Number(process.env.PORT) || 5001;
+
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Server running on port ${PORT}`
+  );
 });

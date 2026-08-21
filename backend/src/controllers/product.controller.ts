@@ -122,34 +122,74 @@ export const getProducts = async (
             },
           }
         : {}),
-
-      ...(lowStock
-        ? {
-            currentStock: {
-              lte: prisma.product.fields.minimumStock,
-            },
-          }
-        : {}),
     };
 
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: {
-          createdAt: "desc",
+    const products = await prisma.product.findMany({
+      where,
+      include: {
+        inventory: {
+          select: {
+            physicalQuantity: true,
+            reservedQuantity: true,
+          },
         },
-      }),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-      prisma.product.count({
-        where,
-      }),
-    ]);
+    const productsWithStock = products.map((product) => {
+      const physicalStock = product.inventory.reduce(
+        (total, inventory) =>
+          total + inventory.physicalQuantity,
+        0
+      );
+
+      const reservedStock = product.inventory.reduce(
+        (total, inventory) =>
+          total + inventory.reservedQuantity,
+        0
+      );
+
+      const availableStock =
+        physicalStock - reservedStock;
+
+      return {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        category: product.category,
+        unitPrice: product.unitPrice,
+        currentStock: product.currentStock,
+        minimumStock: product.minimumStock,
+        warehouseLocation: product.warehouseLocation,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        physicalStock,
+        reservedStock,
+        availableStock,
+      };
+    });
+
+    const filteredProducts = lowStock
+      ? productsWithStock.filter(
+          (product) =>
+            product.availableStock <=
+            product.minimumStock
+        )
+      : productsWithStock;
+
+    const total = filteredProducts.length;
+
+    const paginatedProducts = filteredProducts.slice(
+      (page - 1) * limit,
+      page * limit
+    );
 
     res.status(200).json({
       success: true,
-      data: products,
+      data: paginatedProducts,
       pagination: {
         page,
         limit,
@@ -329,9 +369,7 @@ export const addStockMovement = async (
       return;
     }
 
-    const validation = stockMovementSchema.safeParse(
-      req.body
-    );
+    const validation = stockMovementSchema.safeParse(req.body);
 
     if (!validation.success) {
       res.status(400).json({
@@ -348,61 +386,138 @@ export const addStockMovement = async (
       reason,
     } = validation.data;
 
-    const result = await prisma.$transaction(
-      async (tx) => {
-        const product = await tx.product.findUnique({
+    const result = await prisma.$transaction(async (tx) => {
+      const product = await tx.product.findUnique({
+        where: {
+          id: productId,
+        },
+      });
+
+      if (!product) {
+        throw new Error("PRODUCT_NOT_FOUND");
+      }
+
+      const inventoryRecords = await tx.inventory.findMany({
+        where: {
+          productId,
+        },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      if (inventoryRecords.length === 0) {
+        throw new Error("INVENTORY_NOT_FOUND");
+      }
+
+      const totalPhysicalStock = inventoryRecords.reduce(
+        (total, inventory) =>
+          total + inventory.physicalQuantity,
+        0
+      );
+
+      const totalReservedStock = inventoryRecords.reduce(
+        (total, inventory) =>
+          total + inventory.reservedQuantity,
+        0
+      );
+
+      const totalAvailableStock =
+        totalPhysicalStock - totalReservedStock;
+
+      if (
+        movementType === "OUT" &&
+        totalAvailableStock < quantity
+      ) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+
+      let remaining = quantity;
+
+      for (const inventory of inventoryRecords) {
+        if (remaining <= 0) {
+          break;
+        }
+
+        if (movementType === "IN") {
+          await tx.inventory.update({
+            where: {
+              id: inventory.id,
+            },
+            data: {
+              physicalQuantity: {
+                increment: remaining,
+              },
+            },
+          });
+
+          remaining = 0;
+          break;
+        }
+
+        const available =
+          inventory.physicalQuantity -
+          inventory.reservedQuantity;
+
+        if (available <= 0) {
+          continue;
+        }
+
+        const deduction = Math.min(
+          available,
+          remaining
+        );
+
+        await tx.inventory.update({
           where: {
-            id: productId,
+            id: inventory.id,
+          },
+          data: {
+            physicalQuantity: {
+              decrement: deduction,
+            },
           },
         });
 
-        if (!product) {
-          throw new Error("PRODUCT_NOT_FOUND");
-        }
-
-        if (
-          movementType === "OUT" &&
-          product.currentStock < quantity
-        ) {
-          throw new Error("INSUFFICIENT_STOCK");
-        }
-
-        const newStock =
-          movementType === "IN"
-            ? product.currentStock + quantity
-            : product.currentStock - quantity;
-
-        const updatedProduct =
-          await tx.product.update({
-            where: {
-              id: productId,
-            },
-            data: {
-              currentStock: newStock,
-            },
-          });
-
-        const movement =
-          await tx.stockMovement.create({
-            data: {
-              productId,
-              quantity,
-              movementType,
-              reason,
-              createdById: req.user!.userId,
-            },
-          });
-
-        return {
-          product: updatedProduct,
-          movement,
-        };
+        remaining -= deduction;
       }
-    );
+
+      if (remaining > 0) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+
+      const movement = await tx.stockMovement.create({
+        data: {
+          productId,
+          quantity,
+          movementType,
+          reason,
+          createdById: req.user!.userId,
+        },
+      });
+
+      return {
+        product,
+        movement,
+        stock: {
+          physicalStock:
+            movementType === "IN"
+              ? totalPhysicalStock + quantity
+              : totalPhysicalStock - quantity,
+          reservedStock: totalReservedStock,
+          availableStock:
+            movementType === "IN"
+              ? totalAvailableStock + quantity
+              : totalAvailableStock - quantity,
+        },
+      };
+    });
 
     res.status(201).json({
       success: true,
-      message: `Stock ${movementType === "IN" ? "added" : "removed"} successfully`,
+      message: `Stock ${
+        movementType === "IN" ? "added" : "removed"
+      } successfully`,
       data: result,
     });
   } catch (error) {
@@ -419,11 +534,22 @@ export const addStockMovement = async (
 
     if (
       error instanceof Error &&
+      error.message === "INVENTORY_NOT_FOUND"
+    ) {
+      res.status(404).json({
+        success: false,
+        message: "Inventory record not found for this product",
+      });
+      return;
+    }
+
+    if (
+      error instanceof Error &&
       error.message === "INSUFFICIENT_STOCK"
     ) {
       res.status(409).json({
         success: false,
-        message: "Insufficient stock",
+        message: "Insufficient available stock",
       });
       return;
     }
