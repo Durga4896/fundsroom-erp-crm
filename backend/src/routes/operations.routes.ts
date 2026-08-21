@@ -28,7 +28,7 @@ const router = Router();
 router.get(
     "/locations",
     authenticate,
-    authorize("OPERATIONS"),
+    authorize("ADMIN", "OPERATIONS"),
     getLocations
 );
 
@@ -77,7 +77,7 @@ router.get(
 router.get(
   "/dashboard",
   authenticate,
-  authorize("OPERATIONS"),
+  authorize("ADMIN", "OPERATIONS"),
   getOperationsDashboard
 );
 
