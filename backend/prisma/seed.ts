@@ -25,22 +25,16 @@ const users = [
     role: "ADMIN" as const,
   },
   {
+    name: "Operations User",
+    email: "operations@fundsroom.com",
+    passwordEnv: "OPERATIONS_PASSWORD",
+    role: "OPERATIONS" as const,
+  },
+  {
     name: "Sales User",
     email: "sales@fundsroom.com",
     passwordEnv: "SALES_PASSWORD",
     role: "SALES" as const,
-  },
-  {
-    name: "Warehouse User",
-    email: "warehouse@fundsroom.com",
-    passwordEnv: "WAREHOUSE_PASSWORD",
-    role: "WAREHOUSE" as const,
-  },
-  {
-    name: "Accounts User",
-    email: "accounts@fundsroom.com",
-    passwordEnv: "ACCOUNTS_PASSWORD",
-    role: "ACCOUNTS" as const,
   },
 ];
 
@@ -49,9 +43,7 @@ async function main() {
     const password = process.env[user.passwordEnv];
 
     if (!password) {
-      throw new Error(
-        `${user.passwordEnv} is not configured`
-      );
+      throw new Error(`${user.passwordEnv} is not configured`);
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
