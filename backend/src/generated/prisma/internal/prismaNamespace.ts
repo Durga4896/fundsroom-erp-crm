@@ -1561,6 +1561,7 @@ export const WorkOrderScalarFieldEnum = {
   productId: 'productId',
   locationId: 'locationId',
   requiredQuantity: 'requiredQuantity',
+  assignedUserId: 'assignedUserId',
   status: 'status',
   createdById: 'createdById',
   createdAt: 'createdAt',
