@@ -1,134 +1,141 @@
 # Fundsroom ERP CRM
 
-A full-stack ERP and CRM application for managing customers, products, inventory, customer orders, work orders, challans, and warehouse transfers.
+A full-stack ERP and CRM application designed to manage customers, products,
+inventory, and sales challans with role-based authentication.
 
-The application implements role-based access control and operational workflows with a TypeScript/Express backend and React frontend.
+## Live Demo
 
----
+Frontend:
+https://fundsroom-frontend-ufqe.onrender.com
 
-## 🚀 Features
+Backend:
+https://fundsroom-erp-crm-xnyf.onrender.com
 
-### Authentication & Authorization
-- Secure user login
-- JWT-based authentication
-- Password hashing with bcrypt
-- Role-based authorization
-- Supported roles:
-  - ADMIN
-  - OPERATIONS
-  - SALES
-- Protected API routes
-- Admin-only user lookup for work-order assignment
+## Features
 
-### Customer Management
-- Create and manage customers
-- Customer information management
-- Customer order association
+- User authentication
+- JWT-based authorization
+- Role-based access control
+- Customer management
+- Product management
+- Inventory management
+- Sales challan management
+- Dashboard statistics
+- PostgreSQL database
+- REST API
+- Responsive frontend
 
-### Product Management
-- Product catalog
-- Product information management
-- Product/SKU tracking
+## User Roles
 
-### Inventory Management
-- Location-based inventory
-- Available stock tracking
-- Reserved stock tracking
-- Inventory movements
-- Stock validation
-- Prevention of invalid stock operations
+### Admin
+Full access to the ERP/CRM system.
 
-### Customer Orders
-- Create customer orders
-- Add products and quantities
-- Reserve inventory for orders
-- Order status management
-- Inventory release on cancellation
-- Inventory consumption on completion
+### Operations
+Access to operational functionality such as inventory and challans.
 
-### Work Orders
-- Create work orders
-- Assign work orders to users
-- Track required quantities
-- Track inventory availability and shortages
-- Work-order status management
-- Operational workflow support
+### Sales
+Access to sales/customer-related functionality.
 
-### Warehouse Transfers
-- Create inventory transfers between locations
-- Dispatch transfers
-- Receive transfers
-- Destination inventory increases only after receiving
-- Protection against duplicate receiving
-
-### Challans
-- Challan management
-- Operational documentation workflow
-
----
-
-## 🏗️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - React
 - TypeScript
 - Vite
-- React Router
 - CSS
 
 ### Backend
 - Node.js
-- Express
+- Express.js
 - TypeScript
+- Prisma ORM
 - JWT
 - bcrypt
-- Zod
 
 ### Database
 - PostgreSQL
-- Prisma ORM
+- Supabase
 
-### Testing
-- Jest
-- Supertest
-- ts-jest
+### Deployment
+- Render
 
-### Development Tools
-- Git
-- GitHub
-- npm
+## Architecture
 
----
+User
+↓
+React Frontend
+↓
+REST API
+↓
+Express Backend
+↓
+Prisma ORM
+↓
+PostgreSQL / Supabase
 
-## 📁 Project Structure
+## Local Setup
 
-```text
-fundsroom-erp-crm/
-│
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   │
-│   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   ├── tests/
-│   │   ├── utils/
-│   │   └── server.ts
-│   │
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   └── App.tsx
-│   │
-│   ├── package.json
-│   └── vite.config.ts
-│
-└── README.md
+### Clone repository
+
+git clone https://github.com/Durga4896/fundsroom-erp-crm.git
+
+cd fundsroom-erp-crm
+
+### Backend
+
+cd backend
+
+npm install
+
+Create a `.env` file with the required environment variables.
+
+Run:
+
+npm run prisma:generate
+npm run prisma:deploy
+npm run seed
+npm run dev
+
+### Frontend
+
+cd frontend
+
+npm install
+npm run dev
+
+## Environment Variables
+
+The following environment variables are required:
+
+- DATABASE_URL
+- JWT_SECRET
+- ADMIN_PASSWORD
+- OPERATIONS_PASSWORD
+- SALES_PASSWORD
+- CLIENT_URL
+
+Do not commit `.env` files or production secrets.
+
+## Testing
+
+Backend authentication and API functionality were tested locally and in
+the deployed production environment.
+
+Production login endpoint:
+
+POST /api/auth/login
+
+## Deployment
+
+The frontend and backend are deployed separately on Render.
+
+The backend connects to the PostgreSQL database hosted on Supabase.
+
+## Demo Credentials
+
+Provide evaluator credentials separately rather than storing production
+passwords in this repository.
+
+## Project Status
+
+Production deployment completed successfully.
