@@ -4,6 +4,9 @@ import { useAuth } from "../context/AuthContext";
 const menuItems = [
   { label: "Dashboard", path: "/dashboard", icon: "▦" },
   { label: "Operations", path: "/operations", icon: "⚙" },
+  { label: "Customer Orders", path: "/customer-orders", icon: "▣" },
+  { label: "Work Orders", path: "/work-orders", icon: "⚙" },
+  { label: "Transfers", path: "/transfers", icon: "⇄" },
   { label: "Customers", path: "/customers", icon: "♙" },
   { label: "Products", path: "/products", icon: "▤" },
   { label: "Inventory", path: "/inventory", icon: "◈" },
@@ -17,6 +20,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="brand-mark">F</div>
+
         <div>
           <h2>Fundsroom</h2>
           <span>ERP CRM</span>

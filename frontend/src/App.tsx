@@ -7,7 +7,6 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Inventory from "./pages/Inventory";
 import Challans from "./pages/Challans";
-
 import OperationsDashboard from "./pages/OperationsDashboard";
 import CustomerOrders from "./pages/CustomerOrders";
 import WorkOrders from "./pages/WorkOrders";
@@ -53,9 +52,9 @@ function AppRoutes() {
         }
       />
 
-      {/* Operations - Customer Orders */}
+      {/* Customer Orders */}
       <Route
-        path="/operations/customer-orders"
+        path="/customer-orders"
         element={
           <ProtectedRoute>
             <CustomerOrders />
@@ -63,9 +62,9 @@ function AppRoutes() {
         }
       />
 
-      {/* Operations - Work Orders */}
+      {/* Work Orders */}
       <Route
-        path="/operations/work-orders"
+        path="/work-orders"
         element={
           <ProtectedRoute>
             <WorkOrders />
@@ -73,9 +72,9 @@ function AppRoutes() {
         }
       />
 
-      {/* Operations - Transfers */}
+      {/* Transfers */}
       <Route
-        path="/operations/transfers"
+        path="/transfers"
         element={
           <ProtectedRoute>
             <Transfers />
@@ -123,7 +122,7 @@ function AppRoutes() {
         }
       />
 
-      {/* Default route */}
+      {/* Default */}
       <Route
         path="/"
         element={<Navigate to="/dashboard" replace />}
