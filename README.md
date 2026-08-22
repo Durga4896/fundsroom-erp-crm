@@ -1,118 +1,134 @@
-# Fundsroom ERP & CRM
+# Fundsroom ERP CRM
 
-## 🚀 Live Demo
+A full-stack ERP and CRM application for managing customers, products, inventory, customer orders, work orders, challans, and warehouse transfers.
 
-**Live Application:** https://fundsroom-frontend-ufqe.onrender.com
+The application implements role-based access control and operational workflows with a TypeScript/Express backend and React frontend.
 
-**Backend API:** https://fundsroom-erp-crm-xnyf.onrender.com
+---
 
-**GitHub Repository:** https://github.com/Durga4896/fundsroom-erp-crm
+## 🚀 Features
 
-Full-stack ERP and CRM application developed for the Fundsroom technical case study.
+### Authentication & Authorization
+- Secure user login
+- JWT-based authentication
+- Password hashing with bcrypt
+- Role-based authorization
+- Supported roles:
+  - ADMIN
+  - OPERATIONS
+  - SALES
+- Protected API routes
+- Admin-only user lookup for work-order assignment
 
-## Tech Stack
+### Customer Management
+- Create and manage customers
+- Customer information management
+- Customer order association
+
+### Product Management
+- Product catalog
+- Product information management
+- Product/SKU tracking
+
+### Inventory Management
+- Location-based inventory
+- Available stock tracking
+- Reserved stock tracking
+- Inventory movements
+- Stock validation
+- Prevention of invalid stock operations
+
+### Customer Orders
+- Create customer orders
+- Add products and quantities
+- Reserve inventory for orders
+- Order status management
+- Inventory release on cancellation
+- Inventory consumption on completion
+
+### Work Orders
+- Create work orders
+- Assign work orders to users
+- Track required quantities
+- Track inventory availability and shortages
+- Work-order status management
+- Operational workflow support
+
+### Warehouse Transfers
+- Create inventory transfers between locations
+- Dispatch transfers
+- Receive transfers
+- Destination inventory increases only after receiving
+- Protection against duplicate receiving
+
+### Challans
+- Challan management
+- Operational documentation workflow
+
+---
+
+## 🏗️ Tech Stack
 
 ### Frontend
 - React
 - TypeScript
 - Vite
 - React Router
-- Axios
 - CSS
 
 ### Backend
 - Node.js
-- TypeScript
 - Express
-- JWT authentication
-- Zod validation
+- TypeScript
+- JWT
+- bcrypt
+- Zod
 
 ### Database
 - PostgreSQL
 - Prisma ORM
 
-## Features
+### Testing
+- Jest
+- Supertest
+- ts-jest
 
-### Authentication & Authorization
-- JWT authentication
-- Role-based access control
-- ADMIN
-- SALES
-- WAREHOUSE
-- ACCOUNTS
+### Development Tools
+- Git
+- GitHub
+- npm
 
-### Customer Management
-- Create customers
-- Search customers
-- View customer details
-- Edit customers
-- Customer status
-- Follow-up dates
-- Follow-up notes
-- Customer challan history
-- GST and business information
+---
 
-### Product Management
-- Create products
-- Search products
-- View products
-- Edit products
-- SKU and category management
-- Pricing
-- Minimum stock levels
-- Warehouse location
-
-### Inventory
-- Stock IN
-- Stock OUT
-- Stock movement history
-- Movement reason
-- Created-by information
-- Timestamp tracking
-- Low-stock detection
-- Negative-stock protection
-
-### Challans
-- Create challans
-- Multiple challan items
-- Draft, Confirmed and Cancelled states
-- Automatic challan numbering
-- Challan details
-- Stock validation
-- Stock reduction on confirmation
-- Insufficient-stock protection
-
-### Dashboard
-- Customer overview
-- Product overview
-- Challan overview
-- Low-stock alerts
-- Recent customers
-- Recent challans
-
-## Project Structure
+## 📁 Project Structure
 
 ```text
 fundsroom-erp-crm/
+│
 ├── backend/
 │   ├── prisma/
-│   │   ├── migrations/
-│   │   ├── schema.prisma
-│   │   └── seed.ts
-│   └── src/
-│       ├── config/
-│       ├── controllers/
-│       ├── middleware/
-│       ├── routes/
-│       ├── utils/
-│       ├── validators/
-│       └── server.ts
+│   │   └── schema.prisma
+│   │
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── tests/
+│   │   ├── utils/
+│   │   └── server.ts
+│   │
+│   ├── package.json
+│   └── tsconfig.json
 │
 ├── frontend/
-│   └── src/
-│       ├── api/
-│       ├── components/
-│       ├── context/
-│       └── pages/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── pages/
+│   │   └── App.tsx
+│   │
+│   ├── package.json
+│   └── vite.config.ts
 │
 └── README.md
