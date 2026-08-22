@@ -1,10 +1,8 @@
 import { Router } from "express";
-
 import {
   authenticate,
   authorize,
 } from "../middleware/auth.middleware.js";
-
 import {
   getCustomerOrders,
   getCustomerOrderById,
@@ -14,15 +12,17 @@ import {
 
 const router = Router();
 
+// All routes require authentication
 router.use(authenticate);
-router.use(authorize("OPERATIONS"));
 
-router.get("/", getCustomerOrders);
+// GET — all roles can view orders
+router.get("/", authorize("ADMIN", "OPERATIONS", "SALES"), getCustomerOrders);
+router.get("/:id", authorize("ADMIN", "OPERATIONS", "SALES"), getCustomerOrderById);
 
-router.get("/:id", getCustomerOrderById);
+// POST — Sales + Operations + Admin can create customer orders (spec: "Sales User can create orders")
+router.post("/", authorize("ADMIN", "OPERATIONS", "SALES"), createCustomerOrder);
 
-router.post("/", createCustomerOrder);
-
-router.patch("/:id/status", updateCustomerOrderStatus);
+// PATCH — Operations + Admin manage order status (complete / cancel)
+router.patch("/:id/status", authorize("ADMIN", "OPERATIONS"), updateCustomerOrderStatus);
 
 export default router;

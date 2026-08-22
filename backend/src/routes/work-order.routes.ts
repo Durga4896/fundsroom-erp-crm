@@ -1,10 +1,8 @@
 import { Router } from "express";
-
 import {
   authenticate,
   authorize,
 } from "../middleware/auth.middleware.js";
-
 import {
   getWorkOrders,
   getWorkOrderById,
@@ -14,20 +12,17 @@ import {
 
 const router = Router();
 
-/**
- * All Work Order APIs require authentication
- * and OPERATIONS role.
- */
-
+// All routes require authentication
 router.use(authenticate);
-router.use(authorize("OPERATIONS"));
 
-router.get("/", getWorkOrders);
+// GET — Admin and Operations can view work orders
+router.get("/", authorize("ADMIN", "OPERATIONS"), getWorkOrders);
+router.get("/:id", authorize("ADMIN", "OPERATIONS"), getWorkOrderById);
 
-router.get("/:id", getWorkOrderById);
+// POST — Only Admin can create work orders (spec: "Admin can create Work Orders")
+router.post("/", authorize("ADMIN"), createWorkOrder);
 
-router.post("/", createWorkOrder);
-
-router.patch("/:id/status", updateWorkOrderStatus);
+// PATCH — Admin and Operations can update status
+router.patch("/:id/status", authorize("ADMIN", "OPERATIONS"), updateWorkOrderStatus);
 
 export default router;

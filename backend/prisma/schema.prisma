@@ -67,9 +67,10 @@ model User {
   stockMovements StockMovement[]
   challans       Challan[]
 
-  workOrders     WorkOrder[]
-  transfers      Transfer[]
-  customerOrders CustomerOrder[]
+  createdWorkOrders  WorkOrder[]     @relation("CreatedWorkOrders")
+  assignedWorkOrders WorkOrder[]     @relation("AssignedWorkOrders")
+  transfers          Transfer[]
+  customerOrders     CustomerOrder[]
 }
 
 model Customer {
@@ -206,14 +207,16 @@ model WorkOrder {
   productId        Int
   locationId       Int
   requiredQuantity Int
+  assignedUserId   Int
   status           WorkOrderStatus @default(ASSIGNED)
   createdById      Int
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  product   Product  @relation(fields: [productId], references: [id])
-  location  Location @relation(fields: [locationId], references: [id])
-  createdBy User     @relation(fields: [createdById], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
+  location     Location @relation(fields: [locationId], references: [id])
+  assignedUser User     @relation("AssignedWorkOrders", fields: [assignedUserId], references: [id])
+  createdBy    User     @relation("CreatedWorkOrders", fields: [createdById], references: [id])
 }
 
 model Transfer {

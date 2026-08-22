@@ -1,10 +1,8 @@
 import { Router } from "express";
-
 import {
   authenticate,
   authorize,
 } from "../middleware/auth.middleware.js";
-
 import {
   getTransfers,
   getTransferById,
@@ -15,14 +13,11 @@ import {
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize("OPERATIONS"));
+router.use(authorize("ADMIN", "OPERATIONS"));
 
 router.get("/", getTransfers);
-
 router.get("/:id", getTransferById);
-
 router.post("/", createTransfer);
-
 router.patch("/:id/status", updateTransferStatus);
 
 export default router;
