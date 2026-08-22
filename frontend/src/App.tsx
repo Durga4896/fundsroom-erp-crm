@@ -1,13 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+
 import Login from "./pages/Login";
 import Products from "./pages/Products";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Inventory from "./pages/Inventory";
 import Challans from "./pages/Challans";
-import OperationsDashboard from "./pages/OperationsDashboard";
 
+import OperationsDashboard from "./pages/OperationsDashboard";
+import CustomerOrders from "./pages/CustomerOrders";
+import WorkOrders from "./pages/WorkOrders";
+import Transfers from "./pages/Transfers";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -26,8 +30,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
+      {/* Login */}
       <Route path="/login" element={<Login />} />
 
+      {/* Dashboard */}
       <Route
         path="/dashboard"
         element={
@@ -37,6 +43,7 @@ function AppRoutes() {
         }
       />
 
+      {/* Operations Dashboard */}
       <Route
         path="/operations"
         element={
@@ -46,6 +53,37 @@ function AppRoutes() {
         }
       />
 
+      {/* Operations - Customer Orders */}
+      <Route
+        path="/operations/customer-orders"
+        element={
+          <ProtectedRoute>
+            <CustomerOrders />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Operations - Work Orders */}
+      <Route
+        path="/operations/work-orders"
+        element={
+          <ProtectedRoute>
+            <WorkOrders />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Operations - Transfers */}
+      <Route
+        path="/operations/transfers"
+        element={
+          <ProtectedRoute>
+            <Transfers />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Customers */}
       <Route
         path="/customers"
         element={
@@ -55,15 +93,17 @@ function AppRoutes() {
         }
       />
 
+      {/* Products */}
       <Route
         path="/products"
         element={
           <ProtectedRoute>
             <Products />
           </ProtectedRoute>
-       }
+        }
       />
 
+      {/* Inventory */}
       <Route
         path="/inventory"
         element={
@@ -73,6 +113,7 @@ function AppRoutes() {
         }
       />
 
+      {/* Challans */}
       <Route
         path="/challans"
         element={
@@ -82,8 +123,17 @@ function AppRoutes() {
         }
       />
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Default route */}
+      <Route
+        path="/"
+        element={<Navigate to="/dashboard" replace />}
+      />
+
+      {/* Unknown routes */}
+      <Route
+        path="*"
+        element={<Navigate to="/dashboard" replace />}
+      />
     </Routes>
   );
 }
