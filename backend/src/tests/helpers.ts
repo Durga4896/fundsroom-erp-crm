@@ -34,5 +34,29 @@ export const loginAs = async (
   return res.body.data.token;
 };
 
-export const api = (token: string) =>
-  request(BASE_URL).set("Authorization", `Bearer ${token}`);
+export const api = (token: string) => ({
+  get: (path: string) =>
+    request(BASE_URL)
+      .get(path)
+      .set("Authorization", `Bearer ${token}`),
+
+  post: (path: string) =>
+    request(BASE_URL)
+      .post(path)
+      .set("Authorization", `Bearer ${token}`),
+
+  patch: (path: string) =>
+    request(BASE_URL)
+      .patch(path)
+      .set("Authorization", `Bearer ${token}`),
+
+  put: (path: string) =>
+    request(BASE_URL)
+      .put(path)
+      .set("Authorization", `Bearer ${token}`),
+
+  delete: (path: string) =>
+    request(BASE_URL)
+      .delete(path)
+      .set("Authorization", `Bearer ${token}`),
+});

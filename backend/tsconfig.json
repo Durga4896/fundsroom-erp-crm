@@ -11,7 +11,11 @@
     "verbatimModuleSyntax": false,
     "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
     "src/**/*.ts"
