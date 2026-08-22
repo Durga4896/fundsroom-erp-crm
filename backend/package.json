@@ -52,7 +52,7 @@
     "testEnvironment": "node",
     "extensionsToTreatAsEsm": [],
     "moduleNameMapper": {
-      "^(.*)\.js$": "$1"
+      "^(.*)\\.js$": "$1"
     },
     "transform": {
       "^.+\\.tsx?$": ["ts-jest", {
