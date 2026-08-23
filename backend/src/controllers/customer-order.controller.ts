@@ -231,6 +231,15 @@ export const createCustomerOrder = async (
        * physicalQuantity - reservedQuantity
        */
       for (const item of normalizedItems) {
+        await tx.$queryRaw`
+          SELECT id
+          FROM "Inventory"
+          WHERE "productId" = ${item.productId}
+            AND "locationId" = ${parsedLocationId}
+          ORDER BY id ASC
+          FOR UPDATE
+        `;
+
         const inventoryRecords = await tx.inventory.findMany({
           where: {
             productId: item.productId,
@@ -416,6 +425,15 @@ export const updateCustomerOrderStatus = async (
        */
       if (status === "CANCELLED") {
         for (const item of order.items) {
+          await tx.$queryRaw`
+            SELECT id
+            FROM "Inventory"
+            WHERE "productId" = ${item.productId}
+              AND "locationId" = ${order.locationId}
+            ORDER BY id ASC
+            FOR UPDATE
+          `;
+
           const inventoryRecords = await tx.inventory.findMany({
             where: {
               productId: item.productId,
@@ -476,6 +494,15 @@ export const updateCustomerOrderStatus = async (
        */
       if (status === "COMPLETED") {
         for (const item of order.items) {
+          await tx.$queryRaw`
+            SELECT id
+            FROM "Inventory"
+            WHERE "productId" = ${item.productId}
+              AND "locationId" = ${order.locationId}
+            ORDER BY id ASC
+            FOR UPDATE
+          `;
+
           const inventoryRecords = await tx.inventory.findMany({
             where: {
               productId: item.productId,

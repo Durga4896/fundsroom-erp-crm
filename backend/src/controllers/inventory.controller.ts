@@ -461,53 +461,47 @@ export const adjustInventory = async (
       return;
     }
 
-    /*
-     * Read the inventory before starting the transaction
-     * so we can validate the requested OUT quantity.
-     */
-    const inventory = await prisma.inventory.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        product: true,
-        location: true,
-      },
-    });
-
-    if (!inventory) {
-      res.status(404).json({
-        success: false,
-        message: "Inventory record not found",
-      });
-      return;
-    }
-
-    /*
-     * Available inventory:
-     *
-     * physicalQuantity - reservedQuantity
-     */
-    const availableQuantity =
-      inventory.physicalQuantity -
-      inventory.reservedQuantity;
-
-    if (
-      movementType === "OUT" &&
-      parsedQuantity > availableQuantity
-    ) {
-      res.status(400).json({
-        success: false,
-        message:
-          `Insufficient available inventory. ` +
-          `Available: ${availableQuantity}, ` +
-          `Requested: ${parsedQuantity}`,
-      });
-      return;
-    }
-
     const updatedInventory =
       await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`
+          SELECT id
+          FROM "Inventory"
+          WHERE id = ${id}
+          FOR UPDATE
+        `;
+
+        const inventory = await tx.inventory.findUnique({
+          where: {
+            id,
+          },
+          include: {
+            product: true,
+            location: true,
+          },
+        });
+
+        if (!inventory) {
+          throw new Error("INVENTORY_NOT_FOUND");
+        }
+
+        /*
+         * Available inventory:
+         *
+         * physicalQuantity - reservedQuantity
+         */
+        const availableQuantity =
+          inventory.physicalQuantity -
+          inventory.reservedQuantity;
+
+        if (
+          movementType === "OUT" &&
+          parsedQuantity > availableQuantity
+        ) {
+          throw new Error(
+            `INSUFFICIENT_INVENTORY:${availableQuantity}:${parsedQuantity}`
+          );
+        }
+
         /*
          * Update physical inventory.
          */
@@ -591,6 +585,33 @@ export const adjustInventory = async (
     });
   } catch (error) {
     console.error("Adjust inventory error:", error);
+
+    if (
+      error instanceof Error &&
+      error.message === "INVENTORY_NOT_FOUND"
+    ) {
+      res.status(404).json({
+        success: false,
+        message: "Inventory record not found",
+      });
+      return;
+    }
+
+    if (
+      error instanceof Error &&
+      error.message.startsWith("INSUFFICIENT_INVENTORY:")
+    ) {
+      const [, available, requested] = error.message.split(":");
+
+      res.status(400).json({
+        success: false,
+        message:
+          `Insufficient available inventory. ` +
+          `Available: ${available}, ` +
+          `Requested: ${requested}`,
+      });
+      return;
+    }
 
     res.status(500).json({
       success: false,

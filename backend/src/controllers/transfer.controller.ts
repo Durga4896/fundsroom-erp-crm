@@ -247,7 +247,16 @@ export const updateTransferStatus = async (
      */
     if (status === "DISPATCHED") {
       const updatedTransfer = await prisma.$transaction(async (tx) => {
-        // Re-read inventory inside transaction for a consistent view
+        await tx.$queryRaw`
+          SELECT id
+          FROM "Inventory"
+          WHERE "productId" = ${transfer.productId}
+            AND "locationId" = ${transfer.sourceLocationId}
+          ORDER BY "createdAt" ASC
+          FOR UPDATE
+        `;
+
+        // Re-read inventory inside transaction after locking source rows.
         const sourceInventory = await tx.inventory.findMany({
           where: { productId: transfer.productId, locationId: transfer.sourceLocationId },
           orderBy: { createdAt: "asc" },
